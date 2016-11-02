@@ -6,7 +6,7 @@ module Discourse
 
     SERVICE_CACHE = MiniCache::Store.new
 
-    def find(service:, environment:)
+    def find(service:)
       begin
         service_location = get_by_service_name(service)
         cache_service(service_location)

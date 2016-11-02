@@ -3,10 +3,10 @@ module Discourse
   class HttpPort
 
     def get(&block)
-      port = http_channel
-      yield port
-      port.method = :get
-      port
+        port = http_channel
+        yield port
+        port.method = :get
+        port
     end
 
     def post(&block)

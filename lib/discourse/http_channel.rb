@@ -3,7 +3,8 @@ module Discourse
   class HttpChannel
 
     attr_accessor :status, :response_body, :http_status,
-                  :resource, :environment, :service, :method, :req_headers
+                  :resource, :service, :method, :req_headers, :query_params, :request_body,
+                  :try_cache, :encoding
 
     class RemoteServiceError < PortException ; end
     class MediaContentError < PortException ; end
@@ -18,12 +19,12 @@ module Discourse
       @cache_directives = true
     end
 
-    def try_cache
+    def use_http_caching
       @try_cache = true
     end
 
     def call
-      port_binding = service_discovery.new.find(service: service, environment: environment) + resource
+      port_binding = service_discovery.new.find(service: service) + resource
       to_port(service_address: port_binding, method: method)
     end
 
@@ -31,21 +32,24 @@ module Discourse
 
     # HTTP port
     # service_address: a URL
-    def to_port(service_address: nil, method: nil, body: nil)
+    def to_port(service_address: nil, method: nil)
       begin
-        self.send(method, service_address, body)
+        self.send(method, service_address)
       rescue Faraday::Error => e
         raise self.class::RemoteServiceError.new(msg: e.cause)
       end
     end
 
 
-    def get(service_address, body)
-      service_call = ->(headers={}) { connection(service_address, headers).send(:get) }
+    def get(service_address)
+      service_call = ->(headers={}, query_params={}) {
+        conn = connection(service_address, headers)
+        conn.get '', query_params
+      }
       resp = if try_cache
         get_through_cache(address: service_address, otherwise: service_call)
       else
-        service_call.call(headers)
+        service_call.call(req_headers, query_params)
       end
       respond(resp)
     end
@@ -54,14 +58,14 @@ module Discourse
       http_cache.(service_address: address, request: otherwise)
     end
 
-    def post(service_address, body)
-      connection = Faraday.new(service_address)
-      resp = connection.send(:post) do |req|
-        req.headers['Content-Type'] = 'application/json'
-        req.body = JSON.generate(body)
+    def post(service_address)
+      conn = connection(service_address)
+      resp = conn.post do |req|
+        req.body = request_body
+        req.headers = {}.merge!(req_headers)
       end
-      response_body = JSON.parse(resp.body) rescue {}
-      response_value.new(body: response_body, status: evalulate_status(resp.status))
+      response_body = parse_body(resp)
+      http_response_value.new(body: response_body, status: evalulate_status(resp.status))
     end
 
     def respond(resp)
@@ -71,27 +75,33 @@ module Discourse
                               )
     end
 
-    def connection(address, headers={})
-      hdrs = {"Content-Type" => "application/json"}.merge!(headers).merge!(req_headers)
-      connection = Faraday.new(address)
-      connection.headers.merge!(hdrs)
-      binding.pry
-      puts "====> HTTP Channel:  Added Headers: Input: #{hdrs}   Connection Headers: #{connection.headers}"
+    def connection(address)
+      connection = Faraday.new(:url => address) do |faraday|
+        faraday.request  encoding
+        faraday.response :logger
+        faraday.adapter  Faraday.default_adapter
+      end
       connection
     end
 
     def evalulate_status(http_status)
-      if http_status < 300
+      case http_status
+      when < 300
         :ok
+      when 401, 403
+        :unauthorised
+      when >= 500
+        :system_failure
       else
-        :not_ok
+        :fail
       end
     end
 
-    def parse_body(content_type, body)
+    def parse_body(response)
+      content_type = response.headers["content-type"]
       content_type ? mime = content_type.split(";").first : mime = "application/json"
       if SUPPORTED_MIME_TYPE_PARSERS.keys.include? mime
-        self.send(SUPPORTED_MIME_TYPE_PARSERS[mime], body)
+        self.send(SUPPORTED_MIME_TYPE_PARSERS[mime], response.body)
       else
         raise self.class::MediaContentError.new(retryable: false)
       end

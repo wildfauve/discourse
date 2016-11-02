@@ -2,8 +2,8 @@ module Discourse
 
   class FakeServiceDiscovery
 
-    def find(service:, environment:)
-      "http://localhost:5000/"
+    def find(service:)
+      service
     end
 
   end

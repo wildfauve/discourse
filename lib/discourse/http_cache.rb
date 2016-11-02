@@ -11,7 +11,7 @@ module Discourse
     NOOP_RESULT = {value: nil, directives: Container["http_cache_directives"].(headers: {}), headers: {} }
 
     def call(service_address:, request:)
-      puts "HTTP Cache====> Call---for Service: #{service_address}"
+      # puts "HTTP Cache====> Call---for Service: #{service_address}"
       # Each step in the pipeline takes:
       # 1. A tuple containing the service_address and a block containing the request
       # 2. A Faraday result object
@@ -22,10 +22,8 @@ module Discourse
     end
 
     def hit(input, result)
-      puts "HTTP Cache====> In hit"
       hit = CACHE.get(input[0])
       if hit
-        puts "HTTP Cache====> Cache Hit"
         Time.now <= hit[:directives].cache_valid_until ? hit : NOOP_RESULT
       else
         NOOP_RESULT
@@ -33,13 +31,10 @@ module Discourse
     end
 
     def check_for_modification(input, result)
-      puts "HTTP Cache====> in check_for_modification"
       if !result[:value] # there is nothing to check
-        puts "HTTP Cache====> none to check"
         result
       else
         if revalidate(result[:directives])
-          puts "HTTP Cache====> Revalidate with server"
           # Update the headers with the appropriate cache revalidation tags
           {value: result[:value], directives: result[:directives], headers: revalidate_headers(result[:directives])}
         end
@@ -47,25 +42,16 @@ module Discourse
     end
 
     def make_request(input, result)
-      puts "HTTP Cache====> in request"
       resp = input[1].call(result[:headers])
       if resp.status == NOT_MODIFIED   # Return the value from the cache
-        puts "HTTP Cache====>  Not Modified"
         {value: result[:value], directives: HttpCacheDirectives.new.(headers: resp.headers), headers: {}}
       else
-        puts "HTTP Cache====> Make Expense Call"
         {value: resp, directives: HttpCacheDirectives.new.(headers: resp.headers), headers: {}}
       end
     end
 
     def refresh_cache(input, result)
-      puts "HTTP Cache====> in refresh_cache"
-      if caching_enabled(result[:directives]) && result[:value].status != NOT_MODIFIED
-        puts "HTTP Cache====> its cachable"
-        CACHE.set(input[0], result)
-      else
-        puts "HTTP Cache=====> dont refresh cache"
-      end
+      CACHE.set(input[0], result) if caching_enabled(result[:directives]) && result[:value].status != NOT_MODIFIED
       result
     end
 
@@ -78,10 +64,10 @@ module Discourse
 
     # Takes the HttpCacheDirectivesValue and returns a hash of check server http headers
     def revalidate_headers(directives)
-      [:if_modified_since, :if_none_match].inject({}) do | hrds, checker |
-        hrd_prop = self.send(checker, directives)
-        hrds[hrd_prop[0]] = hrd_prop[1] if hrd_prop
-        hrds
+      [:if_modified_since, :if_none_match].inject({}) do | hdrs, checker |
+        hdr_prop = self.send(checker, directives)
+        hdrs[hdr_prop[0]] = hdr_prop[1] if hdr_prop
+        hdrs
       end
     end
 
