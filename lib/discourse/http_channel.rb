@@ -42,16 +42,25 @@ module Discourse
 
 
     def get(service_address)
-      service_call = ->(headers={}, query_params={}) {
-        conn = connection(service_address, headers)
-        conn.get '', query_params
-      }
+      service_call = get_service_call_as_proc
       resp = if try_cache
         get_through_cache(address: service_address, otherwise: service_call)
       else
-        service_call.call(req_headers, query_params)
+        service_call.(service_address: service_address, headers: req_headers, query_params: query_params)
       end
-      respond(resp)
+      response_body = parse_body(resp)
+      http_response_value.new(body: response_body, status: evalulate_status(resp.status))
+    end
+
+    def get_service_call_as_proc
+      service_call = lambda do |service_address:, headers: {}, query_params: {}|
+        connection = http_connection.connection(service_address, encoding)
+        connection.get do |req|
+          req.headers = {}.merge!(headers) if headers
+          req.param = query_params if query_params
+        end
+      end
+
     end
 
     def get_through_cache(address:, otherwise:)
@@ -59,8 +68,8 @@ module Discourse
     end
 
     def post(service_address)
-      conn = connection(service_address)
-      resp = conn.post do |req|
+      connection = http_connection.connection(service_address, encoding)
+      resp = connection.post do |req|
         req.body = request_body
         req.headers = {}.merge!(req_headers)
       end
@@ -75,22 +84,22 @@ module Discourse
                               )
     end
 
-    def connection(address)
-      connection = Faraday.new(:url => address) do |faraday|
-        faraday.request  encoding
-        faraday.response :logger
-        faraday.adapter  Faraday.default_adapter
-      end
-      connection
-    end
+    # def connection(address)
+    #   connection = Faraday.new(:url => address) do |faraday|
+    #     faraday.request  encoding
+    #     faraday.response :logger
+    #     faraday.adapter  Faraday.default_adapter
+    #   end
+    #   connection
+    # end
 
     def evalulate_status(http_status)
       case http_status
-      when < 300
+      when 200..300
         :ok
       when 401, 403
         :unauthorised
-      when >= 500
+      when 500..530
         :system_failure
       else
         :fail
@@ -130,6 +139,11 @@ module Discourse
     def http_cache
       Container["http_cache"]
     end
+
+    def http_connection
+      Container["http_connection"]
+    end
+
 
   end
 
