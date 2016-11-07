@@ -9,10 +9,11 @@ module Discourse
     class RemoteServiceError < PortException ; end
     class MediaContentError < PortException ; end
 
-
+    DEFAULT_CONTENT_TYPE = "application/json"
+  
     SUPPORTED_MIME_TYPE_PARSERS = {
-      "text/html" => :html_parser,
-      "application/json" => :json_parser
+      "text/html" => Container["html_parser"],
+      "application/json" => Container["json_parser"]
     }
 
     def return_cache_directives
@@ -103,9 +104,11 @@ module Discourse
 
     def parse_body(response)
       content_type = response.headers["content-type"]
-      content_type ? mime = content_type.split(";").first : mime = "application/json"
-      if SUPPORTED_MIME_TYPE_PARSERS.keys.include? mime
-        self.send(SUPPORTED_MIME_TYPE_PARSERS[mime], response.body)
+      content_type ? mime = content_type.split(";").first : mime = DEFAULT_CONTENT_TYPE
+      if configuration.type_parsers.keys.include? mime
+        configuration.type_parsers[mime].(response.body)
+      elsif SUPPORTED_MIME_TYPE_PARSERS.keys.include? mime
+        SUPPORTED_MIME_TYPE_PARSERS[mime].(response.body)
       else
         raise self.class::MediaContentError.new(retryable: false)
       end
@@ -115,9 +118,10 @@ module Discourse
       body
     end
 
-    def json_parser(body)
-      JSON.parse(body)
+    def configuration
+      Container["configuration"]
     end
+
 
     def service_discovery
       Container["service_discovery"]

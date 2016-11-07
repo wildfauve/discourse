@@ -2,9 +2,9 @@
 
 Discourse is a little platform gem that provides a wrapper around HTTP and other services like:
 + Circuit breaker (using the [Stoplight Gem](https://github.com/orgsync/stoplight))
-+ Service discovery (using Consul, and the [Diplomat Gem](https://github.com/WeAreFarmGeek/diplomat)); but you'll need Consul deployed.
-+ Make multiple HTTP requests
-+ Even some caching, using the Faraday middleware (the [Faraday caching extension](https://github.com/plataformatec/faraday-http-cache)); although this does really work yet.
++ Service discovery (using Consul, and the [Diplomat Gem](https://github.com/WeAreFarmGeek/diplomat)); but you'll need Consul deployed.  But you can inject your own implementation.
++ Multiple HTTP requests
++ Even some caching, using the Faraday middleware (the [Faraday caching extension](https://github.com/plataformatec/faraday-http-cache)); although this doesn't really work yet. But you can add your own.
 
 
 ## Installation
@@ -35,12 +35,42 @@ Discourse supports the injection of alternate classes/objects for key functions 
 
 ```ruby
 Discourse::Configuration.build do |config|
-  config.service_discovery = Discourse::FakeServiceDiscovery   # The default for Discourse
-  config.cache_store = Discourse::HttpCache.new                # The default Object for Caching
+  config.service_discovery = Discourse::FakeServiceDiscovery              # The default for Discourse
+  config.cache_store = Discourse::HttpCache.new                           # The default Object for Caching
+  config.type_parsers = {"application/json" => Discourse::JsonParser.new} # The default JSON Parser
 end
 ```
 
+** Service Discovery**
+
 The `service_discovery` objects (or classes) must implement a `call` method, the `service` provided in the actual Discourse HTTP call is provided, and service discovery MUST return a fully qualified URL.  The `resource` is appended to the URL to produce the final URL (hostname + resource)
+
+The `FakeServiceDiscovery` class does absolutely nothing.  Apart from reflecting back the `service` parameter on the HTTP call.
+
+** Cache Store**
+
+** Type Parsers **
+
+Discourse only supports the `text/html` and `application/json` media_types.  But you can add your own by providing Discourse with a hash in the `{media_type => Object}` format.  Your object must respond to a `call`, will be provided with a single argument containing the HTTP response body, and it can return an type of Ruby object.
+
+So, for instance:
+
+```ruby
+Discourse::Configuration.build do |config|
+  config.type_parsers = {"application/json" => FantasticParser} # The default JSON Parser
+end
+```
+
+```ruby
+class FantasticParser
+
+  def call(body)
+    "I refuse to Parse"
+  end
+
+end
+```
+
 
 ### Making HTTP Calls
 
@@ -75,8 +105,7 @@ Discourse::HttpPort.new.post do |p|
 end.()
 ```
 
-The request returns a tuple (in this case a array of 2 parts), containing a stylised HTTP status as a symbol, and the result body, parsed based on the content_type (only `text/html` and
-`application/json` are supported directly)
+The request returns a tuple (in this case a array of 2 parts), containing a stylised HTTP status as a symbol, and the result body, parsed based on the content_type (remember Discourse only supports  `text/html` and `application/json` are supported directly)
 
 ### Using Circuit Breakers
 

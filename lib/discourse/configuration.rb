@@ -41,6 +41,15 @@ module Discourse
         config.service_discovery.nil? ? DEFAULT_SERVICE_DISCOVERY : config.service_discovery
       end
 
+      def type_parsers=(parsers)
+        config.type_parsers = parsers
+      end
+
+      def type_parsers
+        config.type_parsers
+      end
+
+
     end # class << self
 
   end  # clas Configuration
