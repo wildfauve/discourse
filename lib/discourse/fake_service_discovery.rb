@@ -2,7 +2,7 @@ module Discourse
 
   class FakeServiceDiscovery
 
-    def find(service:)
+    def call(service:)
       service
     end
 

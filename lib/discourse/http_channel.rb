@@ -3,7 +3,7 @@ module Discourse
   class HttpChannel
 
     attr_accessor :status, :response_body, :http_status,
-                  :resource, :service, :method, :req_headers, :query_params, :request_body,
+                  :resource, :service, :method, :request_headers, :query_params, :request_body,
                   :try_cache, :encoding
 
     class RemoteServiceError < PortException ; end
@@ -24,7 +24,7 @@ module Discourse
     end
 
     def call
-      port_binding = service_discovery.new.find(service: service) + resource
+      port_binding = service_discovery.new.(service: service) + resource
       to_port(service_address: port_binding, method: method)
     end
 
@@ -42,19 +42,23 @@ module Discourse
 
 
     def get(service_address)
-      service_call = get_service_call_as_proc
-      resp = if try_cache
-        get_through_cache(address: service_address, otherwise: service_call)
-      else
-        service_call.(service_address: service_address, headers: req_headers, query_params: query_params)
-      end
+      resp = get_service_call_function.(get_options(service_address))
       response_body = parse_body(resp)
       http_response_value.new(body: response_body, status: evalulate_status(resp.status))
     end
 
-    def get_service_call_as_proc
-      service_call = lambda do |service_address:, headers: {}, query_params: {}|
-        connection = http_connection.connection(service_address, encoding)
+    def get_options(service_address)
+      options = {service_address: service_address,
+                 headers: request_headers,
+                 query_params: query_params
+                }
+      options[:cache_store] = http_cache if try_cache
+      options
+    end
+
+    def get_service_call_function
+      @get_service_call ||= lambda do |service_address:, headers: {}, query_params: {}, cache_store: nil|
+        connection = http_connection.connection(service_address, encoding, cache_store)
         connection.get do |req|
           req.headers = {}.merge!(headers) if headers
           req.param = query_params if query_params
@@ -64,14 +68,14 @@ module Discourse
     end
 
     def get_through_cache(address:, otherwise:)
-      http_cache.(service_address: address, request: otherwise)
+      http_cache_handler.(service_address: address, request: otherwise)
     end
 
     def post(service_address)
       connection = http_connection.connection(service_address, encoding)
       resp = connection.post do |req|
         req.body = request_body
-        req.headers = {}.merge!(req_headers)
+        req.headers = {}.merge!(request_headers)
       end
       response_body = parse_body(resp)
       http_response_value.new(body: response_body, status: evalulate_status(resp.status))
@@ -83,15 +87,6 @@ module Discourse
                                 status: evalulate_status(resp.status)
                               )
     end
-
-    # def connection(address)
-    #   connection = Faraday.new(:url => address) do |faraday|
-    #     faraday.request  encoding
-    #     faraday.response :logger
-    #     faraday.adapter  Faraday.default_adapter
-    #   end
-    #   connection
-    # end
 
     def evalulate_status(http_status)
       case http_status
@@ -134,6 +129,10 @@ module Discourse
 
     def cache_directives
       Container["cache_directives"]
+    end
+
+    def http_cache_handler
+      Container["http_cache_handler"]
     end
 
     def http_cache
