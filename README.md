@@ -41,15 +41,15 @@ Discourse::Configuration.build do |config|
 end
 ```
 
-** Service Discovery**
+**Service Discovery**
 
 The `service_discovery` objects (or classes) must implement a `call` method, the `service` provided in the actual Discourse HTTP call is provided, and service discovery MUST return a fully qualified URL.  The `resource` is appended to the URL to produce the final URL (hostname + resource)
 
 The `FakeServiceDiscovery` class does absolutely nothing.  Apart from reflecting back the `service` parameter on the HTTP call.
 
-** Cache Store**
+**Cache Store**
 
-** Type Parsers **
+**Type Parsers**
 
 Discourse only supports the `text/html` and `application/json` media_types.  But you can add your own by providing Discourse with a hash in the `{media_type => Object}` format.  Your object must respond to a `call`, will be provided with a single argument containing the HTTP response body, and it can return an type of Ruby object.
 
