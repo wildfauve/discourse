@@ -46,7 +46,7 @@ module Discourse
       end
 
       def type_parsers
-        config.type_parsers
+        config.type_parsers || {}
       end
 
 

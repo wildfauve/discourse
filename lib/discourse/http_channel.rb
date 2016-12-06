@@ -6,11 +6,12 @@ module Discourse
                   :resource, :service, :method, :request_headers, :query_params, :request_body,
                   :try_cache, :encoding
 
+    class DirectiveError < PortException ; end
     class RemoteServiceError < PortException ; end
     class MediaContentError < PortException ; end
 
     DEFAULT_CONTENT_TYPE = "application/json"
-  
+
     SUPPORTED_MIME_TYPE_PARSERS = {
       "text/html" => Container["html_parser"],
       "application/json" => Container["json_parser"]
@@ -25,7 +26,8 @@ module Discourse
     end
 
     def call
-      port_binding = service_discovery.new.(service: service) + resource
+      raise self.class::DirectiveError if service.nil?
+      port_binding = service_discovery.new.(service: service) + (resource || "")
       to_port(service_address: port_binding, method: method)
     end
 
@@ -62,7 +64,7 @@ module Discourse
         connection = http_connection.connection(service_address, encoding, cache_store)
         connection.get do |req|
           req.headers = {}.merge!(headers) if headers
-          req.param = query_params if query_params
+          req.params = query_params if query_params
         end
       end
 
