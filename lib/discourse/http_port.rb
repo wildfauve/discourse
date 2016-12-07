@@ -16,6 +16,14 @@ module Discourse
       port
     end
 
+    def delete(&block)
+      port = http_channel
+      yield port
+      port.method = :delete
+      port
+    end
+
+
     def http_channel
       Container["http_channel"]
     end

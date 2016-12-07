@@ -84,6 +84,17 @@ module Discourse
       http_response_value.new(body: response_body, status: evalulate_status(resp.status))
     end
 
+    def delete(service_address)
+      connection = http_connection.connection(service_address, encoding)
+      resp = connection.delete do |req|
+        req.body = request_body
+        req.headers = {}.merge!(request_headers)
+      end
+      response_body = parse_body(resp)
+      http_response_value.new(body: response_body, status: evalulate_status(resp.status))
+    end
+
+
     def respond(resp)
       http_response_value.new(
                                 body: parse_body(resp.headers[:content_type], resp.body),
