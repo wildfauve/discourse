@@ -1,4 +1,4 @@
-module Discourse
+                                                                                                                                                                                                                                                                                                                                                        module Discourse
 
   class HttpChannel
 
@@ -17,7 +17,7 @@ module Discourse
       "application/json" => Container["json_parser"]
     }
 
-    def return_cache_directives
+    def return_cache_directives                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
       @cache_directives = true
     end
 
