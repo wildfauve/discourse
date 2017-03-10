@@ -5,15 +5,15 @@ module Discourse
     def connection(address, encoding, cache_store = nil, instrumenter = nil)
       begin
         caching = cache_options(cache_store, instrumenter)
-        connection = Faraday.new(:url => address) do |faraday|
+        faraday_connection = Faraday.new(:url => address) do |faraday|
           faraday.use :http_cache, caching if caching
           faraday.request  encoding if encoding
           faraday.response :logger
           faraday.adapter  :typhoeus
         end
-        connection
+        faraday_connection
       rescue Exception => e
-        binding.pry
+        nil
       end
     end
 

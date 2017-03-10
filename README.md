@@ -17,11 +17,11 @@ gem 'discourse'
 
 And then execute:
 
-    $ bundle
+`bundle`
 
 Or install it yourself as:
 
-    $ gem install discourse
+`gem install discourse`
 
 
 To experiment with that code, run `bin/console` for an interactive prompt.
@@ -74,16 +74,18 @@ end
 
 ### Making HTTP Calls
 
-The Discourse `HTTPPort` is the main class used to send HTTP requests.  It takes a configuration for the individual call and the request is executed by calling the `call` method. The params that can be passed into the block are:
+The Discourse `HTTPPort` is the main class used to send HTTP requests.  It takes a configuration for the individual call (the HTTP methods being `#get`, `#post`, `#put`, `#delete`).  It returns a `Discourse::Channel` object.  The request is executed by calling the `#call` method.
 
-+ service
-+ resource
-+ request_headers
-+ request_body
-+ query_params
-+ encoding
-+ return_cache_directives
-+ use_http_caching
+The params that can be passed into the block are:
+
++ service; String; containing any part of a valid url.
++ resource; Optional String, will be appended to the service.
++ request_headers; Optional Hash, of HTTP headers; e.g. {`authorization: "header"`}
++ request_body; Optional Hash.
++ query_params; Optional hash, params to include on the query
++ encoding; Optional Symbol, define the encoding of the body or params; e.g. `:url_encoded`
++ return_cache_directives; Optional None, returns the calling service's cache directives.
++ use_http_caching; Optional None, attempt to cache GET requests.
 
 
 ```ruby
@@ -91,7 +93,7 @@ Discourse::HttpPort.new.get do |p|
   p.service = service
   p.resource = resource
   p.use_http_caching
-end.()
+end.call  # or just .
 ```
 
 
@@ -102,12 +104,33 @@ Discourse::HttpPort.new.post do |p|
   p.request_headers = {authorization: auth_header}
   p.request_body = credentials
   p.encoding = :url_encoded
-end.()
+end.call
 ```
 
 The request returns a tuple (in this case a array of 2 parts), containing a stylised HTTP status as a symbol, and the result body, parsed based on the content_type (remember Discourse only supports  `text/html` and `application/json` are supported directly)
 
 ### Using Circuit Breakers
+
+The Circuit Breaker implementation wraps the Stoplight gem.  You can optionally wrap your call in a circuit breaker.  It will retry a set number of times in case of communications.  The local circuit breaker uses a nullobject to hold the state of the circuit.  So, really all you are getting it retries.  This can be modified to a Redis backend, but not yet.
+
+To use a circuit, include the circuit module.
+
+```ruby
+include Discourse::Circuit
+```
+
+Configure the circuit in a block.  Give it a name so that we can identify it in logs.  You can also give it a logger (which is any object that responds to `#error`, `#info`, `#debug`, and takes a string)    The actual HTTP call is passed to the circuit as a block when the circuit is called (using call).  Like so;
+
+```ruby
+begin
+  result = with_circuit do |circuit|
+    circuit.service_name = "Google"
+    circuit.logger = Web.logger
+  end.call { Discourse::HttpPort.new.get {|p| p.service = service}.call }
+rescue Discourse::PortException => e
+  # return failure
+end
+```
 
 
 ## Development
@@ -118,7 +141,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/discourse.
+Bug reports and pull requests are welcome on GitHub at https://github.com/wildfauve/discourse.
 
 
 ## License
