@@ -27,8 +27,12 @@
 
     def call
       raise self.class::DirectiveError if service.nil?
-      port_binding = service_discovery.new.(service: service) + (resource || "")
       to_port(service_address: port_binding, method: method)
+    end
+
+
+    def port_binding
+      port_binding = service_discovery.new.(service: service) + (resource || "")
     end
 
     private

@@ -93,6 +93,7 @@ Discourse::HttpPort.new.get do |p|
   p.service = service
   p.resource = resource
   p.use_http_caching
+  p.query_params = {param: "a param"}
 end.call  # or just .
 ```
 

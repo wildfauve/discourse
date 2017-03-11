@@ -12,7 +12,7 @@ module Discourse
           faraday.adapter  :typhoeus
         end
         faraday_connection
-      rescue Exception => e
+      rescue StandardError => e
         nil
       end
     end
