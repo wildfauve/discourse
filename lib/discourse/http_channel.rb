@@ -50,8 +50,9 @@
 
     def get(service_address)
       resp = get_service_call_function.(get_options(service_address))
-      response_body = parse_body(resp)
-      http_response_value.new(body: response_body, status: evalulate_status(resp.status))
+      status = evalulate_status(resp.status)
+      status == :ok ? response_body = parse_body(resp) : response_body = nil
+      http_response_value.new(body: response_body, status: status)
     end
 
     def get_options(service_address)
