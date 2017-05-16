@@ -38,6 +38,7 @@ Discourse::Configuration.build do |config|
   config.service_discovery = Discourse::FakeServiceDiscovery              # The default for Discourse
   config.cache_store = Discourse::HttpCache.new                           # The default Object for Caching
   config.type_parsers = {"application/json" => Discourse::JsonParser.new} # The default JSON Parser
+  config.kafka_client_id = "client_id"                                    # client id for kafka producers
 end
 ```
 

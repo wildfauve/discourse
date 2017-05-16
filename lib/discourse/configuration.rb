@@ -49,9 +49,21 @@ module Discourse
         config.type_parsers || {}
       end
 
+      def kafka_client_id=(id)
+        config.kafka_client_id = id
+        kafka_client = Kafka.new(
+          # At least one of these nodes must be available:
+          seed_brokers: ["kafka1:9092", "kafka2:9092"],
+
+          # Set an optional client id in order to identify the client to Kafka:
+          client_id: id
+        )
+        config.kafka_client = kafka_client
+      end
+
 
     end # class << self
 
   end  # clas Configuration
 
-end  # module ScoreCard
+end  # module Discourse

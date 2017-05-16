@@ -1,7 +1,7 @@
 module Discourse
 
   class HttpChannel
-    attr_accessor :status, :response_body, :http_status, :content_type,
+    attr_accessor :status, :response_body, :http_status,
                   :resource, :service, :method, :request_headers, :query_params, :request_body,
                   :try_cache, :encoding
 
@@ -22,6 +22,10 @@ module Discourse
 
     def use_http_caching
       @try_cache = true
+    end
+
+    def content_type(content_type)
+      @content_type = content_type
     end
 
     def call
@@ -81,7 +85,7 @@ module Discourse
       connection = http_connection.connection(service_address, encoding)
       resp = connection.post do |req|
         req.body = request_body
-        req.headers = {}.merge!(request_headers).merge!(content_type: content_type)
+        req.headers = {}.merge!(request_headers)
       end
       response_body = parse_body(resp)
       http_response_value.new(body: response_body, status: evalulate_status(resp.status))
@@ -137,7 +141,6 @@ module Discourse
     def configuration
       Container["configuration"]
     end
-
 
     def service_discovery
       Container["service_discovery"]

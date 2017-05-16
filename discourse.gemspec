@@ -38,6 +38,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'ytry'
   spec.add_dependency 'typhoeus'
   spec.add_dependency 'faraday-http-cache'
+  spec.add_dependency 'ruby-kafka'
 
   spec.add_development_dependency "bundler", "~> 1.13"
   spec.add_development_dependency "rake", "~> 10.0"
