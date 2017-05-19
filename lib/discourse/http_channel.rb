@@ -3,7 +3,7 @@ module Discourse
   class HttpChannel
     attr_accessor :status, :response_body, :http_status,
                   :resource, :service, :method, :request_headers, :query_params, :request_body,
-                  :try_cache, :encoding
+                  :try_cache, :content_type, :encoding
 
     class DirectiveError < PortException ; end
     class RemoteServiceError < PortException ; end
@@ -22,10 +22,6 @@ module Discourse
 
     def use_http_caching
       @try_cache = true
-    end
-
-    def content_type(content_type)
-      @content_type = content_type
     end
 
     def call
@@ -85,7 +81,7 @@ module Discourse
       connection = http_connection.connection(service_address, encoding)
       resp = connection.post do |req|
         req.body = request_body
-        req.headers = {}.merge!(request_headers)
+        req.headers = {}.merge!(request_headers).merge(content_type: content_type)
       end
       response_body = parse_body(resp)
       http_response_value.new(body: response_body, status: evalulate_status(resp.status))

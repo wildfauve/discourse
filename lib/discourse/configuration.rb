@@ -53,12 +53,16 @@ module Discourse
         config.kafka_client_id = id
         kafka_client = Kafka.new(
           # At least one of these nodes must be available:
-          seed_brokers: ["kafka1:9092", "kafka2:9092"],
+          seed_brokers: broker_list,
 
           # Set an optional client id in order to identify the client to Kafka:
           client_id: id
         )
         config.kafka_client = kafka_client
+      end
+
+      def broker_list
+        ENV['KAFKA_BROKER_LIST'].split(",")
       end
 
 
