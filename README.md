@@ -34,7 +34,7 @@ To experiment with that code, run `bin/console` for an interactive prompt.
 Discourse supports the injection of alternate classes/objects for key functions like service discovery or cache store.  Both of these have a default implementation, however, if you have your own, then just inject them into the config.config.
 
 ```ruby
-Discourse::Configuration.config do |config|
+Discourse::Configuration.configure do |config|
   config.config.service_discovery = Discourse::FakeServiceDiscovery              # The default for Discourse
   config.config.cache_store = Discourse::HttpCache.new                           # The default Object for Caching
   config.config.type_parsers = {"application/json" => Discourse::JsonParser.new} # The default JSON Parser
@@ -57,7 +57,7 @@ Discourse only supports the `text/html` and `application/json` media_types.  But
 So, for instance:
 
 ```ruby
-Discourse::Configuration.config do |config|
+Discourse::Configuration.configure do |config|
   config.config.type_parsers = {"application/json" => FantasticParser} # The default JSON Parser
 end
 ```
