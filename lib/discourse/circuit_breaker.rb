@@ -7,7 +7,7 @@ module Discourse
 
     MAX_RETRIES = 3
 
-    attr_accessor :service_name, :logger
+    attr_accessor :service_name
 
     def initialize()
       # redis = Redis.new
@@ -16,18 +16,18 @@ module Discourse
     end
 
     def call(&block)
-      circuit = Stoplight(service_name) {block.call}.with_threshold(MAX_RETRIES).with_cool_off_time(10)
+      circuit = Stoplight(service_name) { block.call }.with_threshold(MAX_RETRIES).with_cool_off_time(10)
       result = nil
       begin
         result = circuit.run
       rescue ServiceDiscovery::ServiceDiscoveryNotAvailable => e
-        debug "Service Discivery unavailable"
+        debug "#{circuit_to_s}; Service Discovery unavailable"
         raise self.class::CircuitUnavailable.new(msg: e.cause)
       rescue Stoplight::Error::RedLight => e
-        debug "Service: #{service_name} circuit red"
+        debug "#{circuit_to_s}; Service: #{service_name} circuit red"
         raise self.class::CircuitOpen.new(msg: "Circuit Set to Red")
       rescue PortException => e
-        debug "Exception Circuit Color==> #{circuit.color} #{e.inspect}"
+        debug "#{circuit_to_s}; Exception Circuit Color==> #{circuit.color} #{e.inspect}"
         raise e unless e.retryable
         if circuit.color == Stoplight::Color::RED
           raise self.class::CircuitOpen.new(msg: e.cause)
@@ -44,12 +44,20 @@ module Discourse
 
     def rundownred(light)
       until light.color == "green"
-        puts light.color
+        debug "#{circuit_to_s}; Current Circuit Colour#{light.color}"
       end
     end
 
     def debug(message)
-      logger.debug(message) if logger
+      logger.(:debug, message)
+    end
+
+    def logger
+      Container["logger"].new
+    end
+
+    def circuit_to_s
+      "Circuit: #{service_name}"
     end
 
   end

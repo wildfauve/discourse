@@ -19,6 +19,7 @@ module Discourse
         connection = kafka_connection.connection(topic: topic, event: event.to_json, partition_key: partition_key)
         connection.publish
       rescue  => e  # Kafka::ConnectionError
+        debug "#{channel_to_s}; #{e}"
         raise self.class::RemoteServiceError.new(msg: e.cause)
       end
     end
@@ -27,6 +28,17 @@ module Discourse
       Container["kafka_connection"]
     end
 
+    def debug(message)
+      logger.(:debug, message)
+    end
+
+    def logger
+      Container["logger"].new
+    end
+
+    def channel_to_s
+      "KafkaChannel: #{topic}"
+    end
 
   end
 end

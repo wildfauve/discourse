@@ -12,6 +12,7 @@ module Discourse
     setting :type_parsers, {}
     setting :kafka_client_id
     setting :kafka_broker_list
+    setting :logger
 
   end  # class Configuration
 

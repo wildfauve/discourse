@@ -35,6 +35,7 @@ module Discourse
   autoload :FakeServiceDiscovery,"discourse/fake_service_discovery"
   autoload :CircuitBreaker,     "discourse/circuit_breaker"
   autoload :Circuit,            "discourse/circuit"
+  autoload :DiscourseLogger,    "discourse/discourse_logger"
 
 
   port_container = Dry::Container.new
@@ -53,6 +54,7 @@ module Discourse
   port_container.register("html_parser", -> { HtmlParser.new })
   port_container.register("circuit", -> { Circuit.new } )
   port_container.register("circuit_breaker", -> { CircuitBreaker } )
+  port_container.register("logger", -> { DiscourseLogger } )
 
   Container = port_container
 
