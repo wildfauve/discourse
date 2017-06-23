@@ -38,15 +38,16 @@ module Discourse
 
 
   port_container = Dry::Container.new
+  port_container.register("kafka_client", -> { Kafka } )
   port_container.register("http_channel", -> { HttpChannel.new } )
   port_container.register("kafka_channel", -> { KafkaChannel.new } )
   port_container.register("kafka_connection", -> { KafkaConnection.new } )
   port_container.register("configuration", -> { Configuration } )
-  port_container.register("service_discovery", -> { Container["configuration"].service_discovery } )
+  port_container.register("service_discovery", -> { Container["configuration"].config.service_discovery } )
   port_container.register("http_port", -> { HttpPort.new } )
   port_container.register("kafka_port", -> { KafkaPort.new } )
   port_container.register("http_response_value", -> { HttpResponseValue } )
-  port_container.register("http_cache", -> { Container["configuration"].cache_store } )
+  port_container.register("http_cache", -> { Container["configuration"].config.cache_store } )
   port_container.register("http_connection", -> { HttpConnection.new })
   port_container.register("json_parser", -> { JsonParser.new })
   port_container.register("html_parser", -> { HtmlParser.new })

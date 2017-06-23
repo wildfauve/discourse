@@ -16,11 +16,19 @@ module Discourse
     private
 
     def kafka_client
-      configuration.config.kafka_client
+      @client ||= client.new(seed_brokers: broker_list, client_id: configuration.config.kafka_client_id)
+    end
+
+    def broker_list
+      configuration.config.broker_list.instance_of?(Array) ? configuration.config.broker_list : configuration.config.broker_list.split(",")
     end
 
     def configuration
       Container["configuration"]
+    end
+
+    def client
+      Container["kafka"]
     end
 
   end

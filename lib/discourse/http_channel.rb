@@ -31,7 +31,7 @@ module Discourse
 
 
     def port_binding
-      port_binding = service_discovery.new.(service: service) + (resource || "")
+      port_binding = service_discovery.new.(service: service) + (resource.to_s || "")
     end
 
     private
@@ -50,8 +50,8 @@ module Discourse
     def get(service_address)
       resp = get_service_call_function.(get_options(service_address))
       status = evalulate_status(resp.status)
-      status == :ok ? response_body = parse_body(resp) : response_body = nil
-      http_response_value.new(body: response_body, status: status)
+      # status == :ok ? response_body = parse_body(resp) : response_body = nil
+      http_response_value.new(body: parse_body(resp), status: status)
     end
 
     def get_options(service_address)
@@ -121,8 +121,8 @@ module Discourse
     def parse_body(response)
       content_type = response.headers["content-type"]
       content_type ? mime = content_type.split(";").first : mime = DEFAULT_CONTENT_TYPE
-      if configuration.type_parsers.keys.include? mime
-        configuration.type_parsers[mime].(response.body)
+      if configuration.config.type_parsers.keys.include? mime
+        configuration.config.type_parsers[mime].(response.body)
       elsif SUPPORTED_MIME_TYPE_PARSERS.keys.include? mime
         SUPPORTED_MIME_TYPE_PARSERS[mime].(response.body)
       else

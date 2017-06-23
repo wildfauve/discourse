@@ -2,6 +2,8 @@ module Discourse
 
   class HttpConnection
 
+    class HttpConnectonError < PortException ; end
+
     def connection(address, encoding, cache_store = nil, instrumenter = nil)
       begin
         caching = cache_options(cache_store, instrumenter)
@@ -13,7 +15,7 @@ module Discourse
         end
         faraday_connection
       rescue StandardError => e
-        nil
+        raise self.class::HttpConnectonError
       end
     end
 
