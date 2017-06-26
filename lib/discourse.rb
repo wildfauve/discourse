@@ -13,6 +13,7 @@ require 'typhoeus'
 require 'typhoeus/adapters/faraday'
 require 'faraday-http-cache'
 require 'ruby-kafka'
+require 'zk'
 
 module Discourse
 
@@ -25,6 +26,8 @@ module Discourse
   autoload :HttpChannel,        "discourse/http_channel"
   autoload :KafkaChannel,       "discourse/kafka_channel"
   autoload :KafkaConnection,    "discourse/kafka_connection"
+  autoload :KafkaBrokers,       "discourse/kafka_brokers"
+  autoload :Zookeeper,          "discourse/zookeeper"
   autoload :HttpConnection,     "discourse/http_connection"
   autoload :HttpResponseValue,  "discourse/http_response_value"
   autoload :HttpCache,          "discourse/http_cache"
@@ -36,13 +39,17 @@ module Discourse
   autoload :CircuitBreaker,     "discourse/circuit_breaker"
   autoload :Circuit,            "discourse/circuit"
   autoload :DiscourseLogger,    "discourse/discourse_logger"
+  autoload :Logging,            "discourse/logging"
 
 
   port_container = Dry::Container.new
-  port_container.register("kafka_client", -> { Kafka } )
-  port_container.register("http_channel", -> { HttpChannel.new } )
   port_container.register("kafka_channel", -> { KafkaChannel.new } )
   port_container.register("kafka_connection", -> { KafkaConnection.new } )
+  port_container.register("kafka_brokers", -> { KafkaBrokers.new } )
+  port_container.register("kafka_client", -> { Kafka } )
+  port_container.register("zookeeper", -> { Zookeeper.new } )
+  port_container.register("zookeeper_client", -> { ZK } )
+  port_container.register("http_channel", -> { HttpChannel.new } )
   port_container.register("configuration", -> { Configuration } )
   port_container.register("service_discovery", -> { Container["configuration"].config.service_discovery } )
   port_container.register("http_port", -> { HttpPort.new } )
@@ -54,7 +61,7 @@ module Discourse
   port_container.register("html_parser", -> { HtmlParser.new })
   port_container.register("circuit", -> { Circuit.new } )
   port_container.register("circuit_breaker", -> { CircuitBreaker } )
-  port_container.register("logger", -> { DiscourseLogger } )
+  port_container.register("logger", -> { DiscourseLogger.new } )
 
   Container = port_container
 

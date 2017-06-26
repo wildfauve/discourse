@@ -33,7 +33,7 @@ module Discourse
     end
 
     def logger
-      Container["logger"].new
+      Container["logger"]
     end
 
     def channel_to_s

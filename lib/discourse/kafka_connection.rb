@@ -23,8 +23,15 @@ module Discourse
     end
 
     def broker_list
-      return nil unless configuration.config.kafka_broker_list
-      configuration.config.kafka_broker_list.instance_of?(Array) ? configuration.config.kafka_broker_list : configuration.config.kafka_broker_list.split(",")
+      @broker_list ||= zookeeper
+    end
+
+    def zookeeper
+      kafka_brokers.()
+    end
+
+    def kafka_brokers
+      Container["kafka_brokers"]
     end
 
     def configuration

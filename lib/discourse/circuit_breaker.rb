@@ -53,7 +53,7 @@ module Discourse
     end
 
     def logger
-      Container["logger"].new
+      Container["logger"]
     end
 
     def circuit_to_s
