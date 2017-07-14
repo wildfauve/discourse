@@ -14,6 +14,7 @@ require 'typhoeus/adapters/faraday'
 require 'faraday-http-cache'
 require 'ruby-kafka'
 require 'zk'
+require 'dry-monads'
 
 module Discourse
 
@@ -27,7 +28,7 @@ module Discourse
   autoload :KafkaChannel,       "discourse/kafka_channel"
   autoload :KafkaConnection,    "discourse/kafka_connection"
   autoload :KafkaBrokers,       "discourse/kafka_brokers"
-  autoload :Zookeeper,          "discourse/zookeeper"
+  autoload :ZookeeperDiscovery, "discourse/zookeeper_discovery"
   autoload :HttpConnection,     "discourse/http_connection"
   autoload :HttpResponseValue,  "discourse/http_response_value"
   autoload :HttpCache,          "discourse/http_cache"
@@ -47,7 +48,7 @@ module Discourse
   port_container.register("kafka_connection", -> { KafkaConnection.new } )
   port_container.register("kafka_brokers", -> { KafkaBrokers.new } )
   port_container.register("kafka_client", -> { Kafka } )
-  port_container.register("zookeeper", -> { Zookeeper.new } )
+  port_container.register("zookeeper_discovery", -> { ZookeeperDiscovery.new } )
   port_container.register("zookeeper_client", -> { ZK } )
   port_container.register("http_channel", -> { HttpChannel.new } )
   port_container.register("configuration", -> { Configuration } )
@@ -64,5 +65,7 @@ module Discourse
   port_container.register("logger", -> { DiscourseLogger.new } )
 
   Container = port_container
+
+  M = Dry::Monads
 
 end

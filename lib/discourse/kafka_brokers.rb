@@ -9,7 +9,7 @@ module Discourse
     private
 
     def zookeeper
-      Container['zookeeper']
+      Container['zookeeper_discovery']
     end
 
 

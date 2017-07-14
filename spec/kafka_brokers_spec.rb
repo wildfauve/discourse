@@ -46,10 +46,49 @@ describe Discourse::KafkaBrokers do
                       .and_return([@node_data_1, nil])
 
       brokers = Discourse::Container['kafka_brokers'].()
-      expect(brokers).to eq ["192.168.0.12:9092","192.168.0.22:9092"]
+      expect(brokers).to be_some
+      expect(brokers.value).to eq ["192.168.0.12:9092","192.168.0.22:9092"]
 
     end
 
   end
+
+  context 'Cant find Brokers' do
+
+    before do
+
+      Discourse::Configuration.configure do |config|
+        config.zookeeper_broker_list = nil
+      end
+
+      @zk_client = double("ZK", children: ["0", "1"]) #, get: [node_data, nil])
+
+    end
+
+    it 'should return none when there are no zookeeper nodes configured' do
+
+      brokers = Discourse::Container['kafka_brokers'].()
+      expect(brokers).to be_none
+
+    end
+
+    it 'should return none when zookeeper has no brokers configured' do
+
+      Discourse::Configuration.configure do |config|
+        config.zookeeper_broker_list = "localhost:2181"
+      end
+
+      @zk_client = double("ZK", children: []) #, get: [node_data, nil])
+
+      allow(ZK).to receive(:new).with("localhost:2181").and_return(@zk_client)
+
+      brokers = Discourse::Container['kafka_brokers'].()
+      expect(brokers).to be_none
+
+    end
+
+
+  end
+
 
 end
