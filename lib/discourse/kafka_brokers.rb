@@ -3,15 +3,19 @@ module Discourse
   class KafkaBrokers
 
     def call
-      zookeeper.()
+      M::Maybe(configuration.config.kafka_broker_list.split(","))
+      # zookeeper.()
     end
 
     private
 
-    def zookeeper
-      Container['zookeeper_discovery']
-    end
+    # def zookeeper
+    #   Container['zookeeper_discovery']
+    # end
 
+    def configuration
+      Container["configuration"]
+    end
 
   end
 

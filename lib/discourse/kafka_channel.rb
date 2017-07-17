@@ -2,6 +2,8 @@ module Discourse
 
   class KafkaChannel
 
+    include Logging
+
     class RemoteServiceError < PortException ; end
     class DirectiveError < PortException ; end
 
@@ -28,14 +30,6 @@ module Discourse
 
     def kafka_connection
       Container["kafka_connection"]
-    end
-
-    def debug(message)
-      logger.(:debug, message)
-    end
-
-    def logger
-      Container["logger"]
     end
 
     def channel_to_s

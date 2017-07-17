@@ -2,6 +2,8 @@ module Discourse
 
   class CircuitBreaker
 
+    include Logging
+
     class CircuitOpen < PortException ; end
     class CircuitUnavailable < PortException ; end
 
@@ -46,14 +48,6 @@ module Discourse
       until light.color == "green"
         debug "#{circuit_to_s}; Current Circuit Colour#{light.color}"
       end
-    end
-
-    def debug(message)
-      logger.(:debug, message)
-    end
-
-    def logger
-      Container["logger"]
     end
 
     def circuit_to_s
