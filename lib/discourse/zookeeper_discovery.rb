@@ -37,7 +37,7 @@ module Discourse
     #  "version"=>4}
 
     def kafka_brokers
-      ->(ids) { M::Maybe(ids.map { |id| client.get("#{KAFKA_BROKER_IDS_PATH}/#{id}") }
+      ->(ids) { M::Maybe(ids.map { |id| client.get("#{KAFKA_BROKER_IDS_PATH}/#{id}")[0] }
                             .flatten.delete_if(&:nil?) ) }
     end
 
