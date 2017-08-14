@@ -7,6 +7,7 @@ module Discourse
     include Logging
 
     def call
+      return M::Maybe(nil) unless client
       M::Maybe(client).bind(kafka_broker_ids)
                       .bind(kafka_brokers)
                       .bind(parse)
@@ -65,7 +66,12 @@ module Discourse
     end
 
     def client
-      @client ||= Container["zookeeper_client"].new(broker_list) if broker_list
+      begin
+        @client ||= Container["zookeeper_client"].new(broker_list) if broker_list
+      rescue StandardError => e
+        debug "Zookeeper Discovery: Exception: #{e.message}"
+        nil
+      end
     end
 
   end
