@@ -25,6 +25,9 @@ module Discourse
         ids.empty? ? M::Maybe(nil) : M::Maybe(ids)
       rescue Zookeeper::Exceptions::ZookeeperException => e
         M::Maybe(nil)
+      rescue StandardError => e
+        debug "Zookeeper Discovery: Exception: #{e.message}"
+        M::Maybe(nil)
       end
     end
 
