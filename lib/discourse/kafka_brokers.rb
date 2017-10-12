@@ -10,11 +10,11 @@ module Discourse
     private
 
     def zookeeper
-      Container['zookeeper_discovery']
+      IC['zookeeper_discovery']
     end
 
     def configuration
-      Container["configuration"]
+      IC["configuration"]
     end
 
   end

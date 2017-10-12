@@ -25,7 +25,7 @@ module Discourse
 
 
     def http_channel
-      Container["http_channel"]
+      IC["http_channel"]
     end
 
   end

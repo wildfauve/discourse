@@ -13,7 +13,7 @@ module Discourse
     end
 
     def configuration
-      Container["configuration"]
+      IC["configuration"]
     end
 
   end

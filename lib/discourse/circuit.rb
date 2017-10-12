@@ -14,7 +14,7 @@ module Discourse
     end
 
     def circuit_breaker
-      Discourse::Container["circuit_breaker"]
+      IC["circuit_breaker"]
     end
 
   end

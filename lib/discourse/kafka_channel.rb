@@ -29,7 +29,7 @@ module Discourse
     end
 
     def kafka_connection
-      Container["kafka_connection"]
+      IC["kafka_connection"]
     end
 
     def channel_to_s

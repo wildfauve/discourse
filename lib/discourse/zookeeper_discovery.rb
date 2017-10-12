@@ -62,12 +62,12 @@ module Discourse
     end
 
     def configuration
-      Container["configuration"]
+      IC["configuration"]
     end
 
     def client
       begin
-        @client ||= Container["zookeeper_client"].new(broker_list) if broker_list
+        @client ||= IC["zookeeper_client"].new(broker_list) if broker_list
       rescue StandardError => e
         debug "Zookeeper Discovery: Exception: #{e.message}"
         nil

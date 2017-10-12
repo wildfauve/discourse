@@ -11,7 +11,7 @@ module Discourse
     end
 
     def logger
-      Container["logger"]
+      IC["logger"]
     end
 
   end

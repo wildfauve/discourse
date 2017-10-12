@@ -29,15 +29,15 @@ module Discourse
     end
 
     def kafka_brokers
-      Container["kafka_brokers"]
+      IC["kafka_brokers"]
     end
 
     def configuration
-      Container["configuration"]
+      IC["configuration"]
     end
 
     def client
-      Container["kafka_client"]
+      IC["kafka_client"]
     end
 
   end

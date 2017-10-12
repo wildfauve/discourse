@@ -12,8 +12,9 @@ module Discourse
     DEFAULT_CONTENT_TYPE = "application/json"
 
     SUPPORTED_MIME_TYPE_PARSERS = {
-      "text/html" => Container["html_parser"],
-      "application/json" => Container["json_parser"]
+      "text/html" => IC["html_parser"],
+      "application/json" => IC["json_parser"],
+      "application/xml" => IC["xml_parser"]
     }
 
     def return_cache_directives
@@ -135,31 +136,31 @@ module Discourse
     end
 
     def configuration
-      Container["configuration"]
+      IC["configuration"]
     end
 
     def service_discovery
-      Container["service_discovery"]
+      IC["service_discovery"]
     end
 
     def http_response_value
-      Container["http_response_value"]
+      IC["http_response_value"]
     end
 
     def cache_directives
-      Container["cache_directives"]
+      IC["cache_directives"]
     end
 
     def http_cache_handler
-      Container["http_cache_handler"]
+      IC["http_cache_handler"]
     end
 
     def http_cache
-      Container["http_cache"]
+      IC["http_cache"]
     end
 
     def http_connection
-      Container["http_connection"]
+      IC["http_connection"]
     end
 
   end

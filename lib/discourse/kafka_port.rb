@@ -9,7 +9,7 @@ module Discourse
     end
 
     def kafka_channel
-      Container["kafka_channel"]
+      IC["kafka_channel"]
     end
 
   end

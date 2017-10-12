@@ -18,6 +18,30 @@ require 'dry-monads'
 
 module Discourse
 
+  port_container = Dry::Container.new
+  port_container.register("kafka_channel", -> { KafkaChannel.new } )
+  port_container.register("kafka_connection", -> { KafkaConnection.new } )
+  port_container.register("kafka_brokers", -> { KafkaBrokers.new } )
+  port_container.register("kafka_client", -> { Kafka } )
+  port_container.register("zookeeper_discovery", -> { ZookeeperDiscovery.new } )
+  port_container.register("zookeeper_client", -> { ZK } )
+  port_container.register("http_channel", -> { HttpChannel.new } )
+  port_container.register("configuration", -> { Configuration } )
+  port_container.register("service_discovery", -> { IC["configuration"].config.service_discovery } )
+  port_container.register("http_port", -> { HttpPort.new } )
+  port_container.register("kafka_port", -> { KafkaPort.new } )
+  port_container.register("http_response_value", -> { HttpResponseValue } )
+  port_container.register("http_cache", -> { IC["configuration"].config.cache_store } )
+  port_container.register("http_connection", -> { HttpConnection.new })
+  port_container.register("json_parser", -> { JsonParser.new })
+  port_container.register("xml_parser", -> { XmlParser.new })
+  port_container.register("html_parser", -> { HtmlParser.new })
+  port_container.register("circuit", -> { Circuit.new } )
+  port_container.register("circuit_breaker", -> { CircuitBreaker } )
+  port_container.register("logger", -> { DiscourseLogger.new } )
+
+  IC = port_container
+
   autoload :Version,            "discourse/version"
   autoload :DiscourseError,     "discourse/discourse_error"
   autoload :Configuration,      "discourse/configuration"
@@ -33,6 +57,7 @@ module Discourse
   autoload :HttpResponseValue,  "discourse/http_response_value"
   autoload :HttpCache,          "discourse/http_cache"
   autoload :JsonParser,         "discourse/json_parser"
+  autoload :XmlParser,          "discourse/xml_parser"
   autoload :HtmlParser,         "discourse/html_parser"
   autoload :Instrument,         "discourse/instrument"
   autoload :ServiceDiscovery,   "discourse/service_discovery"
@@ -41,30 +66,6 @@ module Discourse
   autoload :Circuit,            "discourse/circuit"
   autoload :DiscourseLogger,    "discourse/discourse_logger"
   autoload :Logging,            "discourse/logging"
-
-
-  port_container = Dry::Container.new
-  port_container.register("kafka_channel", -> { KafkaChannel.new } )
-  port_container.register("kafka_connection", -> { KafkaConnection.new } )
-  port_container.register("kafka_brokers", -> { KafkaBrokers.new } )
-  port_container.register("kafka_client", -> { Kafka } )
-  port_container.register("zookeeper_discovery", -> { ZookeeperDiscovery.new } )
-  port_container.register("zookeeper_client", -> { ZK } )
-  port_container.register("http_channel", -> { HttpChannel.new } )
-  port_container.register("configuration", -> { Configuration } )
-  port_container.register("service_discovery", -> { Container["configuration"].config.service_discovery } )
-  port_container.register("http_port", -> { HttpPort.new } )
-  port_container.register("kafka_port", -> { KafkaPort.new } )
-  port_container.register("http_response_value", -> { HttpResponseValue } )
-  port_container.register("http_cache", -> { Container["configuration"].config.cache_store } )
-  port_container.register("http_connection", -> { HttpConnection.new })
-  port_container.register("json_parser", -> { JsonParser.new })
-  port_container.register("html_parser", -> { HtmlParser.new })
-  port_container.register("circuit", -> { Circuit.new } )
-  port_container.register("circuit_breaker", -> { CircuitBreaker } )
-  port_container.register("logger", -> { DiscourseLogger.new } )
-
-  Container = port_container
 
   M = Dry::Monads
 

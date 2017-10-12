@@ -45,7 +45,7 @@ describe Discourse::KafkaBrokers do
                       .with("/brokers/ids/1")
                       .and_return([@node_data_1, nil])
 
-      brokers = Discourse::Container['kafka_brokers'].()
+      brokers = Discourse::IC['kafka_brokers'].()
       expect(brokers).to be_some
       expect(brokers.value).to eq ["192.168.0.12:9092","192.168.0.22:9092"]
 
@@ -67,7 +67,7 @@ describe Discourse::KafkaBrokers do
 
     it 'should return none when there are no zookeeper nodes configured' do
 
-      brokers = Discourse::Container['kafka_brokers'].()
+      brokers = Discourse::IC['kafka_brokers'].()
       expect(brokers).to be_none
 
     end
@@ -82,7 +82,7 @@ describe Discourse::KafkaBrokers do
 
       allow(ZK).to receive(:new).with("localhost:2181").and_return(@zk_client)
 
-      brokers = Discourse::Container['kafka_brokers'].()
+      brokers = Discourse::IC['kafka_brokers'].()
       expect(brokers).to be_none
 
     end
