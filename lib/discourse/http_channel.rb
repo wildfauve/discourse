@@ -14,7 +14,9 @@ module Discourse
     SUPPORTED_MIME_TYPE_PARSERS = {
       "text/html" => IC["html_parser"],
       "application/json" => IC["json_parser"],
-      "application/xml" => IC["xml_parser"]
+      "application/xml" => IC["xml_parser"],
+      "application/soap+xml" => IC["xml_parser"],
+      "text/xml" => IC["xml_parser"]
     }
 
     def return_cache_directives
