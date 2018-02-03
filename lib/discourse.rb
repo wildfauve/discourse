@@ -34,6 +34,7 @@ module Discourse
   port_container.register("http_cache", -> { IC["configuration"].config.cache_store } )
   port_container.register("http_connection", -> { HttpConnection.new })
   port_container.register("json_parser", -> { JsonParser.new })
+  port_container.register("object_to_json_representer", -> { ObjectToJsonRepresenter.new })
   port_container.register("xml_parser", -> { XmlParser.new })
   port_container.register("html_parser", -> { HtmlParser.new })
   port_container.register("circuit", -> { Circuit.new } )
@@ -56,6 +57,7 @@ module Discourse
   autoload :HttpConnection,     "discourse/http_connection"
   autoload :HttpResponseValue,  "discourse/http_response_value"
   autoload :HttpCache,          "discourse/http_cache"
+  autoload :ObjectToJsonRepresenter, "discourse/object_to_json_representer"
   autoload :JsonParser,         "discourse/json_parser"
   autoload :XmlParser,          "discourse/xml_parser"
   autoload :HtmlParser,         "discourse/html_parser"

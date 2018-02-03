@@ -14,6 +14,7 @@ module Discourse
     def publish
       client = kafka_client
       raise self.class::ZookeeperFailure.new(msg: "Zookeeper connection failure", retryable: false) unless client.some?
+
       client.value.deliver_message(@event, topic: @topic, partition_key: @partition_key)
     end
 

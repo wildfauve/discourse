@@ -1,4 +1,5 @@
 require "spec_helper"
+require 'discourse/version'
 
 describe Discourse do
   it "has a version number" do

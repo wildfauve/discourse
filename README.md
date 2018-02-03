@@ -52,7 +52,7 @@ The `FakeServiceDiscovery` class does absolutely nothing.  Apart from reflecting
 
 **Type Parsers**
 
-Discourse only supports the `text/html` and `application/json` media_types.  But you can add your own by providing Discourse with a hash in the `{media_type => Object}` format.  Your object must respond to a `call`, will be provided with a single argument containing the HTTP response body, and it can return an type of Ruby object.
+Discourse only supports the `text/html` and `application/json` media_types for parsing incoming message bodies.  But you can add your own by providing Discourse with a hash in the `{media_type => Object}` format.  Your object must respond to a `call`, will be provided with a single argument containing the message body, and it can return any type of Ruby object.
 
 So, for instance:
 
@@ -71,6 +71,23 @@ class FantasticParser
 
 end
 ```
+
+**Representers**
+
+Of course you call also provide an out-going message parser (say on a Post or a Kafka event).  This allows you to pass any message type, with a representer which will convert to something that "works on the wire".
+
+The default representer is the `ObjectToJsonRepresenter`, which simply assumes that your message body will respond to `#call`.
+
+```ruby
+Discourse::KafkaPort.new.send do |p|
+  p.topic = params[:topic]
+  p.event = params[:event]
+  p.partition_key = params[:partition_key]
+  p.representer = Discourse::ObjectToJsonRepresenter  # the default representer
+end.()
+```
+
+Of course, only simple objects can really be represented in this manner.  When things are a little more complicated than `#to_json`, just provide your own representer in the port block.  It just needs to respond to `#call` and must take your event object as the only parameter.
 
 
 ### Making HTTP Calls

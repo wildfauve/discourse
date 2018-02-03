@@ -11,7 +11,6 @@ module Discourse
     setting :service_discovery, DEFAULT_SERVICE_DISCOVERY
     setting :type_parsers, {}
     setting :kafka_client_id
-    # setting :kafka_broker_list
     setting :zookeeper_broker_list
     setting :logger
 
