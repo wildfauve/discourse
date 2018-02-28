@@ -1,6 +1,9 @@
 module Discourse
 
   class HttpChannel
+
+    include Logging
+
     attr_accessor :status, :response_body, :http_status,
                   :resource, :service, :method, :request_headers, :query_params, :request_body,
                   :try_cache, :content_type, :encoding
@@ -81,6 +84,8 @@ module Discourse
     end
 
     def post(service_address)
+      debug("HTTPChannel#post => #{service_address}")
+      debug("HTTPChannel#post => #{request_body}")
       connection = http_connection.connection(service_address, encoding)
       resp = connection.post do |req|
         req.body = request_body
