@@ -2,6 +2,8 @@ module Discourse
 
   class KafkaConnection
 
+    include Logging
+
     class ZookeeperFailure < Discourse::PortException ; end
 
     def connection(topic:, event:, partition_key:)
@@ -13,8 +15,11 @@ module Discourse
 
     def publish
       client = kafka_client
-      raise self.class::ZookeeperFailure.new(msg: "Zookeeper connection failure", retryable: false) unless client.some?
 
+      unless client.some?
+        debug "Discourse::KafkaConnection#publish Zookeeper connection failure, client: #{client.value}"
+        raise self.class::ZookeeperFailure.new(msg: "Zookeeper connection failure", retryable: false) unless client.some?
+      end
       client.value.deliver_message(@event, topic: @topic, partition_key: @partition_key)
     end
 

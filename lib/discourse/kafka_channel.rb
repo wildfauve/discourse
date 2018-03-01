@@ -24,9 +24,13 @@ module Discourse
         connection.publish
         # returns a Maybe Monad, so, we'll throw an exception as this is the interface expected.
       rescue Discourse::PortException => e
-        debug "#{channel_to_s}; #{e}; retryable: #{e.retryable}"
+        debug "Discourse::KafkaChannel #{channel_to_s}; #{e}; retryable: #{e.retryable}"
         raise self.class::RemoteServiceError.new(msg: e.message, retryable: e.retryable)
+      rescue Kafka::Error => e
+        debug "Discourse::KafkaChannel #{channel_to_s}; #{e}"
+        raise self.class::RemoteServiceError.new(msg: e.message, retryable: false)
       end
+
     end
 
     def representer
