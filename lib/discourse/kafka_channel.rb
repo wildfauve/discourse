@@ -5,6 +5,7 @@ module Discourse
     include Logging
 
     class RemoteServiceError < PortException ; end
+    class KafkaServiceError < PortException ; end
     class DirectiveError < PortException ; end
 
     attr_accessor :topic, :event, :partition_key, :encoding
@@ -28,7 +29,7 @@ module Discourse
         raise self.class::RemoteServiceError.new(msg: e.message, retryable: e.retryable)
       rescue Kafka::Error => e
         debug "Discourse::KafkaChannel #{channel_to_s}; #{e}"
-        raise self.class::RemoteServiceError.new(msg: e.message, retryable: false)
+        raise self.class::KafkaServiceError.new(msg: e.message, retryable: false)
       end
 
     end
