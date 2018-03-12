@@ -27,7 +27,7 @@ module Discourse
       rescue Zookeeper::Exceptions::ZookeeperException => e
         M::Maybe(nil)
       rescue StandardError => e
-        debug "Zookeeper Discovery: Exception: #{e.message}"
+        info "Zookeeper Discovery: Exception: #{e.message}"
         M::Maybe(nil)
       end
     end
@@ -69,7 +69,7 @@ module Discourse
       begin
         @client ||= IC["zookeeper_client"].new(broker_list) if broker_list
       rescue StandardError => e
-        debug "Zookeeper Discovery: Exception: #{e.message}"
+        info "Zookeeper Discovery: Exception: #{e.message}"
         nil
       end
     end

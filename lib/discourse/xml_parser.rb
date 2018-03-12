@@ -9,7 +9,7 @@ module Discourse
     # Returns a Nokogiri Class Hierarchy.
     def call(body)
       return {} unless body
-      debug("XmlParser#call => #{body}")
+      info("XmlParser#call => #{body}")
 
       Nokogiri::XML(body).remove_namespaces!
     end

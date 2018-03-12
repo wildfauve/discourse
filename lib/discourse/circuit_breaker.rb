@@ -23,13 +23,13 @@ module Discourse
       begin
         result = circuit.run
       rescue ServiceDiscovery::ServiceDiscoveryNotAvailable => e
-        debug "#{circuit_to_s}; Service Discovery unavailable"
+        info "#{circuit_to_s}; Service Discovery unavailable"
         raise self.class::CircuitUnavailable.new(msg: e.cause)
       rescue Stoplight::Error::RedLight => e
-        debug "#{circuit_to_s}; Service: #{service_name} circuit red"
+        info "#{circuit_to_s}; Service: #{service_name} circuit red"
         raise self.class::CircuitOpen.new(msg: "Circuit Set to Red")
       rescue PortException => e
-        debug "#{circuit_to_s}; Exception Circuit Color==> #{circuit.color} #{e.inspect}"
+        info "#{circuit_to_s}; Exception Circuit Color==> #{circuit.color} #{e.inspect}"
         raise e unless e.retryable
         if circuit.color == Stoplight::Color::RED
           raise self.class::CircuitOpen.new(msg: e.cause)
@@ -46,7 +46,7 @@ module Discourse
 
     def rundownred(light)
       until light.color == "green"
-        debug "#{circuit_to_s}; Current Circuit Colour#{light.color}"
+        info "#{circuit_to_s}; Current Circuit Colour#{light.color}"
       end
     end
 

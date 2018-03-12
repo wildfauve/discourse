@@ -10,6 +10,10 @@ module Discourse
       logger.(:debug, message)
     end
 
+    def info(message)
+      logger.(:info, message)
+    end
+
     def logger
       IC["logger"]
     end
