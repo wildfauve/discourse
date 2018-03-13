@@ -17,7 +17,7 @@ module Discourse
       client = kafka_client
 
       unless client.some?
-        debug "Discourse::KafkaConnection#publish Zookeeper connection failure, client: #{client.value}"
+        info "Discourse::KafkaConnection#publish Zookeeper connection failure, client: #{client.value}"
         raise self.class::ZookeeperFailure.new(msg: "Zookeeper connection failure", retryable: false) unless client.some?
       end
       client.value.deliver_message(@event, topic: @topic, partition_key: @partition_key)

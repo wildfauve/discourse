@@ -18,18 +18,20 @@ module Discourse
     end
 
     def call(&block)
+      info "CircuitBreaker: #{circuit_to_s}; call service: #{service_name}"
       circuit = Stoplight(service_name) { block.call }.with_threshold(MAX_RETRIES).with_cool_off_time(10)
+      info "LIGHT ==== #{Stoplight::Light.default_data_store.get_all(circuit)}"
       result = nil
       begin
         result = circuit.run
       rescue ServiceDiscovery::ServiceDiscoveryNotAvailable => e
-        info "#{circuit_to_s}; Service Discovery unavailable"
+        info "CircuitBreaker: #{circuit_to_s}; Service Discovery unavailable"
         raise self.class::CircuitUnavailable.new(msg: e.cause)
       rescue Stoplight::Error::RedLight => e
-        info "#{circuit_to_s}; Service: #{service_name} circuit red"
+        info "CircuitBreaker: #{circuit_to_s}; Service: #{service_name} circuit red"
         raise self.class::CircuitOpen.new(msg: "Circuit Set to Red")
       rescue PortException => e
-        info "#{circuit_to_s}; Exception Circuit Color==> #{circuit.color} #{e.inspect}"
+        info "CircuitBreaker: #{circuit_to_s}; Exception Circuit Color==> #{circuit.color} #{e.inspect}"
         raise e unless e.retryable
         if circuit.color == Stoplight::Color::RED
           raise self.class::CircuitOpen.new(msg: e.cause)

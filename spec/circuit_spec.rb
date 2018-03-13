@@ -21,6 +21,8 @@ describe Discourse::Circuit do
         end
       end
 
+      Stoplight::Light.default_data_store = Stoplight::DataStore::Memory.new
+
       @circuit = MockClient.new.circuit_test
 
     end

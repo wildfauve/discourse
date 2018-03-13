@@ -3,13 +3,13 @@ module Discourse
   class DiscourseLogger
 
     def call(level, message)
-      logger.send(level, message) if logger
+      logger.send(level, message) if ( logger && logger.respond_to?(level) )
     end
 
     private
 
     def logger
-      configuration.config.logger
+      @logger ||= configuration.config.logger
     end
 
     def configuration
