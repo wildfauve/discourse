@@ -6,6 +6,10 @@ module Discourse
       logger.send(level, message) if ( logger && logger.respond_to?(level) )
     end
 
+    def configured_logger
+      logger
+    end
+
     private
 
     def logger

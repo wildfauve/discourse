@@ -27,7 +27,7 @@ module Discourse
 
     def kafka_client
       return M::Maybe(nil) unless kafka_broker_list.some?
-      @client ||= M::Maybe(client.new(seed_brokers: kafka_broker_list.value, client_id: configuration.config.kafka_client_id, logger: logger))
+      @client ||= M::Maybe(client.new(seed_brokers: kafka_broker_list.value, client_id: configuration.config.kafka_client_id, logger: logger.configured_logger))
     end
 
     def kafka_broker_list
