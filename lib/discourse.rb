@@ -20,7 +20,7 @@ module Discourse
 
   port_container = Dry::Container.new
   port_container.register("kafka_channel", -> { KafkaChannel.new } )
-  port_container.register("kafka_connection", -> { KafkaConnection.new } )
+  port_container.register("kafka_connection", -> { KafkaConnection } )
   port_container.register("kafka_brokers", -> { KafkaBrokers.new } )
   port_container.register("kafka_client", -> { Kafka } )
   port_container.register("zookeeper_discovery", -> { ZookeeperDiscovery.new } )

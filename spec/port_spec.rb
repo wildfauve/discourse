@@ -38,11 +38,7 @@ describe Discourse::HttpPort do
         end
 
         port.port_binding
-
-
-
       end
-
 
       it "should raise an exception when no service is provided" do
 
@@ -51,7 +47,6 @@ describe Discourse::HttpPort do
       end
 
     end
-
 
     context 'Get Requests' do
 
@@ -85,6 +80,24 @@ describe Discourse::HttpPort do
         expect(port.status).to eq :ok
 
       end
+
+      # it 'filters passwords from the logs' do
+      #
+      #   expect(Faraday).to receive(:new).with(url: "http://api.example.com/resource").and_yield(faraday_connection_object)
+      #
+      #   expect(faraday_request_object).to receive(:post).and_yield(faraday_request_object).and_return(@json_response)
+      #
+      #   expect(faraday_request_object).to receive(:headers=).with({:authorization=>"uid:pwd"})
+      #   expect(faraday_request_object).to receive(:params=).with({param1: 1})
+      #
+      #   port = Discourse::HttpPort.new.post do |p|
+      #     p.service = "http://api.example.com"
+      #     p.resource = "/resource"
+      #     p.request_headers = {authorization: "uid:pwd"}
+      #     p.request_body = { username: 'test', password: 'password1' }
+      #   end.call
+      #
+      # end
 
 
     end # context Get

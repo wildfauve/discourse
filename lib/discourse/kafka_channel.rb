@@ -22,8 +22,12 @@ module Discourse
     def to_port()
       begin
         msg = representer.(event)
-        info "Discourse::KafkaChannel#to_port topic: #{topic}, message: #{msg}"
-        connection = kafka_connection.connection(topic: topic, event: msg, partition_key: partition_key)
+
+        debug "Discourse::KafkaChannel#to_port topic: #{topic}, message: #{msg}"
+
+
+        connection = kafka_connection.new.connection(topic: topic, event: msg, partition_key: partition_key)
+
         connection.publish
         # returns a Maybe Monad, so, we'll throw an exception as this is the interface expected.
       rescue Discourse::PortException => e
