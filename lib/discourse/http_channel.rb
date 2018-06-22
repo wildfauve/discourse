@@ -13,6 +13,7 @@ module Discourse
     class MediaContentError < PortException ; end
 
     DEFAULT_CONTENT_TYPE = "application/json"
+    DEFAULT_ENCODING     = DEFAULT_CONTENT_TYPE
 
     SUPPORTED_MIME_TYPE_PARSERS = {
       "text/html" => IC["html_parser"],
@@ -89,7 +90,7 @@ module Discourse
       connection = http_connection.connection(service_address, encoding)
       resp = connection.post do |req|
         req.body = request_body
-        req.headers = {}.merge!(request_headers).merge(content_type: content_type)
+        req.headers = request_header_builder(request_headers, content_type)
       end
       response_body = parse_body(resp)
       http_response_value.new(body: response_body, status: evalulate_status(resp.status))
@@ -140,6 +141,12 @@ module Discourse
 
     def html_parser(body)
       body
+    end
+
+    def request_header_builder(hdrs, content_type)
+      return {}.merge(content_type: content_type) unless request_headers
+
+      request_headers.has_key?(:content_type) ? request_headers : request_headers.merge(content_type: content_type)
     end
 
     def configuration
