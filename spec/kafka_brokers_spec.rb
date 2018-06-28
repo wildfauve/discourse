@@ -47,7 +47,7 @@ describe Discourse::KafkaBrokers do
 
       brokers = Discourse::IC['kafka_brokers'].()
       expect(brokers).to be_some
-      expect(brokers.value).to eq ["192.168.0.12:9092","192.168.0.22:9092"]
+      expect(brokers.value_or).to eq ["192.168.0.12:9092","192.168.0.22:9092"]
 
     end
 

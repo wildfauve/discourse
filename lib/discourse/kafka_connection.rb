@@ -17,17 +17,17 @@ module Discourse
       client = kafka_client
 
       unless client.some?
-        info "Discourse::KafkaConnection#publish Zookeeper connection failure, client: #{client.value}"
+        info "Discourse::KafkaConnection#publish Zookeeper connection failure, client: #{client.failure}"
         raise self.class::ZookeeperFailure.new(msg: "Zookeeper connection failure", retryable: false) unless client.some?
       end
-      client.value.deliver_message(@event, topic: @topic, partition_key: @partition_key)
+      client.value_or.deliver_message(@event, topic: @topic, partition_key: @partition_key)
     end
 
     private
 
     def kafka_client
       return M::Maybe(nil) unless kafka_broker_list.some?
-      @client ||= M::Maybe(client.new(seed_brokers: kafka_broker_list.value, client_id: configuration.config.kafka_client_id, logger: logger.configured_logger))
+      @client ||= M::Maybe(client.new(seed_brokers: kafka_broker_list.value_or, client_id: configuration.config.kafka_client_id, logger: logger.configured_logger))
     end
 
     def kafka_broker_list

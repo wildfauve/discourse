@@ -14,7 +14,7 @@ require 'typhoeus/adapters/faraday'
 require 'faraday-http-cache'
 require 'ruby-kafka'
 require 'zk'
-require 'dry-monads'
+require 'dry/monads/maybe'
 
 module Discourse
 
