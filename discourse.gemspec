@@ -39,7 +39,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'typhoeus'
   spec.add_dependency 'faraday-http-cache'
   spec.add_dependency 'ruby-kafka'
-  spec.add_dependency 'dry-monads'
+  spec.add_dependency 'dry-monads', "~> 0.4.0"
   spec.add_dependency 'zk'
   spec.add_dependency 'nokogiri'
 
