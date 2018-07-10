@@ -89,7 +89,19 @@ module Discourse
       debug("HTTPChannel#post => #{request_body}")
       connection = http_connection.connection(service_address, encoding)
       resp = connection.post do |req|
-        req.body = request_body
+        req.body = request_body if request_body
+        req.headers = request_header_builder(request_headers, content_type)
+      end
+      response_body = parse_body(resp)
+      http_response_value.new(body: response_body, status: evalulate_status(resp.status))
+    end
+
+    def put(service_address)
+      debug("HTTPChannel#post => #{service_address}")
+      debug("HTTPChannel#post => #{request_body}")
+      connection = http_connection.connection(service_address, encoding)
+      resp = connection.put do |req|
+        req.body = request_body if request_body
         req.headers = request_header_builder(request_headers, content_type)
       end
       response_body = parse_body(resp)
@@ -146,7 +158,13 @@ module Discourse
     def request_header_builder(hdrs, content_type)
       return {}.merge(content_type: content_type) unless request_headers
 
-      request_headers.has_key?(:content_type) ? request_headers : request_headers.merge(content_type: content_type)
+      if request_headers.has_key?(:content_type)
+        request_headers
+      elsif content_type.nil?
+        request_headers
+      else
+        request_headers.merge(content_type: content_type)
+      end
     end
 
     def configuration

@@ -9,6 +9,13 @@ module Discourse
         port
     end
 
+    def put(&block)
+        port = http_channel
+        yield port
+        port.method = :put
+        port
+    end
+
     def post(&block)
       port = http_channel
       yield port
