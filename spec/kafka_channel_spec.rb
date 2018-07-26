@@ -3,6 +3,36 @@ require 'dry/container/stub'
 
 describe Discourse::KafkaChannel do
 
+  context 'publishing' do
+
+      before do
+        class ClientDouble
+          def initialize(*args) ; self ; end
+          def client ; M.Maybe(self) ; end
+          def deliver_message(*args); nil ; end
+        end
+
+        Discourse::IC.enable_stubs!
+        Discourse::IC.stub('kafka_client', ClientDouble)
+      end
+
+      after do
+        Discourse::IC.unstub('kafka_client')
+      end
+
+    it 'publishes like a happy bunny' do
+
+      expect_any_instance_of(ClientDouble).to receive(:deliver_message)
+      
+      result = Discourse::KafkaPort.new.send do |p|
+        p.topic = "io.mindainfo.account.transaction"
+        p.event = { kind: :event }
+        p.partition_key = "123"
+      end.()
+
+    end
+  end
+
   context 'problems finding brokers' do
 
     before do

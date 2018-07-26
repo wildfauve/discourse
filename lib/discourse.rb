@@ -22,7 +22,7 @@ module Discourse
   port_container.register("kafka_channel", -> { KafkaChannel.new } )
   port_container.register("kafka_connection", -> { KafkaConnection } )
   port_container.register("kafka_brokers", -> { KafkaBrokers.new } )
-  port_container.register("kafka_client", -> { Kafka } )
+  port_container.register("kafka_client", -> { KafkaClient } )
   port_container.register("zookeeper_discovery", -> { ZookeeperDiscovery.new } )
   port_container.register("zookeeper_client", -> { ZK } )
   port_container.register("http_channel", -> { HttpChannel.new } )
@@ -48,6 +48,7 @@ module Discourse
   autoload :Configuration,      "discourse/configuration"
   autoload :PortException,      "discourse/port_exception"
   autoload :HttpPort,           "discourse/http_port"
+  autoload :KafkaClient,        "discourse/kafka_client"
   autoload :KafkaPort,          "discourse/kafka_port"
   autoload :HttpChannel,        "discourse/http_channel"
   autoload :KafkaChannel,       "discourse/kafka_channel"
