@@ -85,8 +85,10 @@ module Discourse
     end
 
     def post(service_address)
-      debug("HTTPChannel#post => #{service_address}")
-      debug("HTTPChannel#post => #{request_body}")
+      info("HTTPChannel#post => #{service_address}")
+
+      info("HTTPChannel#post => #{request_body}")
+
       connection = http_connection.connection(service_address, encoding)
       resp = connection.post do |req|
         req.body = request_body if request_body
@@ -97,8 +99,9 @@ module Discourse
     end
 
     def put(service_address)
-      debug("HTTPChannel#post => #{service_address}")
-      debug("HTTPChannel#post => #{request_body}")
+      info("HTTPChannel#post => #{service_address}")
+      info("HTTPChannel#post => #{request_body}")
+
       connection = http_connection.connection(service_address, encoding)
       resp = connection.put do |req|
         req.body = request_body if request_body

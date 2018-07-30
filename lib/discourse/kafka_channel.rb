@@ -23,8 +23,7 @@ module Discourse
       begin
         msg = representer.(event)
 
-        debug "Discourse::KafkaChannel#to_port topic: #{topic}, message: #{msg}"
-
+        info "Discourse::KafkaChannel#to_port topic: #{topic}, message: #{msg}"
 
         connection = kafka_connection.new.connection(topic: topic, event: msg, partition_key: partition_key)
 
