@@ -31,6 +31,8 @@ To experiment with that code, run `bin/console` for an interactive prompt.
 
 ### Configuration
 
+
+
 Discourse supports the injection of alternate classes/objects for key functions like service discovery or cache store.  Both of these have a default implementation, however, if you have your own, then just inject them into the config.config.
 
 ```ruby
